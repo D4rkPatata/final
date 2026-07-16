@@ -1,0 +1,16 @@
+[
+  {
+    "dni": "72415893",
+    "correo": "maria.torres@demo.pe",
+    "nombre": "María Fernanda Torres Quispe",
+    "password_hash": "$2b$12$z2M0gDcVaSEmiZQHYw2VTOLCSfPFHlUEYxNTuV6X1FF3G0BSYXx9u",
+    "historia_clinica_id": "HC-001"
+  },
+  {
+    "dni": "45678912",
+    "correo": "karina.paredes@demo.pe",
+    "nombre": "Karina Paredes Villanueva",
+    "password_hash": "$2b$12$jJfNHzz0eim5eMvRrwqLe.3alTqEkfj9Ov0ViKRnSOQPuK3sgYumy",
+    "historia_clinica_id": "HC-002"
+  }
+]

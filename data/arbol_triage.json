@@ -1,0 +1,1048 @@
+{
+  "metadata": {
+    "nombre": "Motor de orientación clínica preliminar basado en árboles de decisión",
+    "version": "0.1.0-mvp",
+    "idioma": "es-PE",
+    "uso_previsto": "Prototipo académico para orientar el siguiente nivel de atención y detectar señales de alarma. No diagnostica ni prescribe.",
+    "limitaciones": [
+      "No es una implementación oficial ni completa del Manchester Triage System.",
+      "Requiere revisión y validación clínica antes de uso real.",
+      "Ante duda o información insuficiente, escalar a personal de salud."
+    ],
+    "principios_seguridad": [
+      "No retrasar la atención por continuar el cuestionario.",
+      "Finalizar al detectar emergencia.",
+      "No recomendar medicamentos ni dosis."
+    ]
+  },
+  "niveles_orientacion": {
+    "rojo": {
+      "codigo": 1,
+      "nombre": "Atención inmediata",
+      "mensaje": "Posible señal de alarma. Busca atención de emergencia inmediatamente. No continúes el cuestionario.",
+      "prioridad": 100
+    },
+    "naranja": {
+      "codigo": 2,
+      "nombre": "Evaluación muy urgente",
+      "mensaje": "Acude a un servicio de urgencias lo antes posible.",
+      "prioridad": 80
+    },
+    "amarillo": {
+      "codigo": 3,
+      "nombre": "Evaluación prioritaria",
+      "mensaje": "Busca evaluación médica presencial prioritaria, idealmente hoy.",
+      "prioridad": 60
+    },
+    "verde": {
+      "codigo": 4,
+      "nombre": "Consulta no urgente",
+      "mensaje": "Programa una consulta médica y vigila cualquier empeoramiento.",
+      "prioridad": 40
+    },
+    "azul": {
+      "codigo": 5,
+      "nombre": "Orientación general",
+      "mensaje": "Puede brindarse orientación general; consulta si persiste o empeora.",
+      "prioridad": 20
+    },
+    "humano": {
+      "codigo": 9,
+      "nombre": "Revisión humana requerida",
+      "mensaje": "No hay información suficiente para orientar de forma segura.",
+      "prioridad": 70
+    }
+  },
+  "preguntas_contexto": [
+    {
+      "id": "edad",
+      "tipo": "numero",
+      "texto": "¿Qué edad tiene la persona?",
+      "requerido": true,
+      "min": 0,
+      "max": 120
+    },
+    {
+      "id": "embarazo",
+      "tipo": "opcion",
+      "texto": "¿Está embarazada o podría estarlo?",
+      "opciones": [
+        "si",
+        "no",
+        "no_aplica",
+        "no_sabe"
+      ],
+      "requerido": true
+    },
+    {
+      "id": "duracion",
+      "tipo": "texto",
+      "texto": "¿Desde cuándo presenta el problema?",
+      "requerido": true
+    },
+    {
+      "id": "empeoramiento",
+      "tipo": "booleano",
+      "texto": "¿Está empeorando rápidamente?",
+      "requerido": true
+    }
+  ],
+  "filtro_universal_emergencia": {
+    "descripcion": "Ejecutar antes del flujo y antes de cada nueva pregunta.",
+    "modo": "primera_coincidencia",
+    "preguntas": [
+      {
+        "id": "no_respira",
+        "texto": "¿No respira o solo jadea?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Ausencia o respiración agónica"
+        }
+      },
+      {
+        "id": "inconsciente",
+        "texto": "¿Está inconsciente o es muy difícil despertarla?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Alteración grave de conciencia"
+        }
+      },
+      {
+        "id": "respiracion_extrema",
+        "texto": "¿Tiene extrema dificultad para respirar, no puede hablar o tiene labios azulados?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Compromiso respiratorio grave"
+        }
+      },
+      {
+        "id": "convulsion",
+        "texto": "¿Está convulsionando o ha tenido convulsiones repetidas sin recuperarse?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Convulsión activa o repetida"
+        }
+      },
+      {
+        "id": "sangrado",
+        "texto": "¿Tiene sangrado abundante que no se detiene con presión directa?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Hemorragia posiblemente grave"
+        }
+      },
+      {
+        "id": "acv",
+        "texto": "¿Tiene rostro caído, debilidad de un lado o dificultad repentina para hablar?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Posibles signos neurológicos agudos"
+        }
+      },
+      {
+        "id": "anafilaxia",
+        "texto": "¿Tiene hinchazón de lengua/garganta o dificultad respiratoria tras posible alergia?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Posible reacción alérgica grave"
+        }
+      },
+      {
+        "id": "autolesion",
+        "texto": "¿Quiere hacerse daño, tiene un plan o está en peligro inmediato?",
+        "si": {
+          "resultado": "rojo",
+          "motivo": "Riesgo inmediato para la seguridad"
+        }
+      }
+    ],
+    "fallback": {
+      "accion": "continuar",
+      "siguiente_etapa": "seleccion_motivo"
+    },
+    "pregunta_principal": "Antes de continuar, indica si la persona presenta alguna de estas señales de alarma.",
+    "opcion_ninguna": {
+      "id": "ninguna_de_las_anteriores",
+      "texto": "Ninguna de las anteriores",
+      "accion": {
+        "tipo": "continuar",
+        "siguiente_etapa": "seleccion_motivo"
+      },
+      "exclusiva": true
+    },
+    "reglas_seleccion": [
+      {
+        "id": "ninguna_exclusiva",
+        "descripcion": "La opción 'Ninguna de las anteriores' no puede combinarse con otra señal."
+      },
+      {
+        "id": "priorizar_senal_critica",
+        "descripcion": "Si se selecciona una señal crítica junto con 'Ninguna de las anteriores', se ignora 'Ninguna' y se procesa la señal crítica."
+      }
+    ]
+  },
+  "motivos_consulta": {
+    "dolor_pecho": {
+      "nombre": "Dolor en el pecho",
+      "palabras_clave": [
+        "dolor de pecho",
+        "dolor torácico",
+        "opresión"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿El dolor es fuerte, opresivo o comenzó de forma repentina?",
+          "tipo": "booleano",
+          "si": {
+            "siguiente": "a2"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay falta de aire, sudor frío, náuseas, desmayo o debilidad intensa?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Dolor torácico con señales de alarma"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿El dolor se extiende al brazo, espalda, cuello o mandíbula?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Dolor torácico irradiado"
+          },
+          "no": {
+            "resultado": "naranja",
+            "motivo": "Dolor torácico fuerte o repentino"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Aparece con esfuerzo, empeora o dura más de unos minutos?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Dolor torácico persistente o con esfuerzo"
+          },
+          "no": {
+            "siguiente": "a5"
+          }
+        },
+        "a5": {
+          "pregunta": "¿Hay fiebre, tos persistente, golpe reciente o dolor al respirar?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Dolor torácico con síntomas asociados"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Sin señales de alarma declaradas"
+          }
+        }
+      }
+    },
+    "dificultad_respiratoria": {
+      "nombre": "Dificultad para respirar",
+      "palabras_clave": [
+        "falta de aire",
+        "ahogo",
+        "respiración rápida"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Comenzó de forma súbita o empeora rápidamente?",
+          "tipo": "booleano",
+          "si": {
+            "siguiente": "a2"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay dolor en el pecho, desmayo, confusión o labios azulados?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Compromiso respiratorio grave"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿No puede caminar unos pasos o hablar frases completas?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Limitación respiratoria severa"
+          },
+          "no": {
+            "resultado": "naranja",
+            "motivo": "Dificultad respiratoria súbita"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Hay fiebre alta, silbidos intensos, tos con sangre o enfermedad cardiaca/pulmonar?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Dificultad respiratoria con factor de riesgo"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Requiere evaluación"
+          }
+        }
+      }
+    },
+    "fiebre_adulto": {
+      "nombre": "Fiebre en adulto",
+      "aplica_si": {
+        "edad_min": 18
+      },
+      "palabras_clave": [
+        "fiebre",
+        "escalofríos"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Hay confusión, rigidez de cuello, dificultad respiratoria, desmayo o convulsiones?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Fiebre con señal grave"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay sangrado, manchas moradas, dolor abdominal intenso, vómitos persistentes o debilidad extrema?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Fiebre con señales de alarma"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Está embarazada, inmunosuprimido o con enfermedad crónica descompensada?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Persona de mayor riesgo"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a4": {
+          "pregunta": "¿La fiebre persiste, reaparece o empeora?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Fiebre persistente"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Sin señales de alarma declaradas"
+          }
+        }
+      }
+    },
+    "fiebre_nino": {
+      "nombre": "Fiebre en niño",
+      "aplica_si": {
+        "edad_max": 17
+      },
+      "palabras_clave": [
+        "niño con fiebre",
+        "bebé con fiebre"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿El bebé tiene menos de 3 meses y presenta temperatura elevada?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Fiebre posible en menor de 3 meses"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Está muy decaído, difícil de despertar, respira con esfuerzo, convulsiona o tiene labios azulados?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Fiebre infantil con señal grave"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿No acepta líquidos, vomita todo, casi no orina, llora sin lágrimas o tiene boca muy seca?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Posible deshidratación"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Tiene manchas moradas, rigidez de cuello, dolor intenso o empeora rápidamente?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Señal de alarma infantil"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Requiere orientación profesional"
+          }
+        }
+      }
+    },
+    "dolor_abdominal": {
+      "nombre": "Dolor abdominal",
+      "palabras_clave": [
+        "dolor abdominal",
+        "dolor de barriga",
+        "vientre"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿El dolor es súbito, muy intenso o el abdomen está duro?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Dolor abdominal intenso o súbito"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay desmayo, sangre en vómito/heces, vómitos persistentes o debilidad marcada?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Dolor abdominal con señal grave"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Está embarazada o podría estarlo y presenta dolor o sangrado vaginal?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Dolor durante posible embarazo"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Hay fiebre, dolor localizado que empeora, diarrea intensa o no retiene líquidos?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Síntomas asociados"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Sin señales de alarma declaradas"
+          }
+        }
+      }
+    },
+    "dolor_cabeza": {
+      "nombre": "Dolor de cabeza",
+      "palabras_clave": [
+        "dolor de cabeza",
+        "cefalea",
+        "migraña"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Comenzó de forma repentina y es el más intenso que ha sentido?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Cefalea súbita e intensa"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay debilidad de un lado, dificultad para hablar, confusión, desmayo o convulsión?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Signos neurológicos"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Hay fiebre con rigidez de cuello, manchas moradas o vómitos repetidos?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Cefalea con señal de alarma"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Ocurrió tras un golpe en la cabeza o toma anticoagulantes?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Cefalea posterior a traumatismo"
+          },
+          "no": {
+            "siguiente": "a5"
+          }
+        },
+        "a5": {
+          "pregunta": "¿Es nuevo, persistente, progresivo o diferente a dolores previos?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Cefalea nueva o progresiva"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Sin señales de alarma declaradas"
+          }
+        }
+      }
+    },
+    "neurologico": {
+      "nombre": "Debilidad, alteración del habla o confusión",
+      "palabras_clave": [
+        "cara caída",
+        "no puede hablar",
+        "debilidad",
+        "confusión"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Los síntomas comenzaron de forma repentina?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Déficit neurológico súbito"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay dificultad para caminar, pérdida de equilibrio, visión alterada o debilidad progresiva?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Alteración neurológica significativa"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Síntoma neurológico"
+          }
+        }
+      }
+    },
+    "traumatismo": {
+      "nombre": "Golpe, caída o accidente",
+      "palabras_clave": [
+        "caída",
+        "golpe",
+        "accidente",
+        "fractura"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Fue un accidente de alta energía o un golpe fuerte en cabeza, cuello, pecho o abdomen?",
+          "tipo": "booleano",
+          "si": {
+            "siguiente": "a2"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay pérdida de conciencia, confusión, vómitos repetidos, dificultad respiratoria o sangrado abundante?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Traumatismo con señal grave"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Hay dolor intenso, deformidad, incapacidad para mover una extremidad o pérdida de sensibilidad?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Posible lesión grave"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Traumatismo importante"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Hay herida profunda, deformidad, dolor creciente o dificultad para apoyar/mover?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Lesión que requiere evaluación"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Traumatismo leve"
+          }
+        }
+      }
+    },
+    "sangrado": {
+      "nombre": "Sangrado",
+      "palabras_clave": [
+        "sangrado",
+        "hemorragia",
+        "sangre"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Es abundante, sale a chorros o no se detiene con presión directa?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Sangrado posiblemente grave"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Está pálida, mareada, confundida, muy débil o se desmayó?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Posible compromiso circulatorio"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Proviene de vómito, heces, orina, embarazo o una herida profunda?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Sangrado que requiere urgencia"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Sangrado persistente"
+          }
+        }
+      }
+    },
+    "reaccion_alergica": {
+      "nombre": "Reacción alérgica",
+      "palabras_clave": [
+        "alergia",
+        "ronchas",
+        "hinchazón"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Hay dificultad respiratoria, ronquera, hinchazón de lengua/garganta, desmayo o confusión?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Posible reacción alérgica grave"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Las ronchas o hinchazón se extienden rápidamente o hay vómitos repetidos?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Reacción progresiva"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Reacción sin compromiso respiratorio"
+          }
+        }
+      }
+    },
+    "vomitos_diarrea": {
+      "nombre": "Vómitos o diarrea",
+      "palabras_clave": [
+        "vómitos",
+        "diarrea"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Hay sangre en vómito/heces, dolor abdominal muy intenso, desmayo o confusión?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Señal digestiva grave"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿No retiene líquidos, casi no orina, tiene boca muy seca o mareo al ponerse de pie?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Posible deshidratación significativa"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Es bebé, adulto mayor, embarazada o tiene enfermedad crónica importante?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Persona de mayor riesgo"
+          },
+          "no": {
+            "resultado": "verde",
+            "motivo": "Sin señales de alarma declaradas"
+          }
+        }
+      }
+    },
+    "embarazo": {
+      "nombre": "Problema durante el embarazo",
+      "palabras_clave": [
+        "embarazada",
+        "embarazo",
+        "contracciones",
+        "sangrado vaginal"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Hay sangrado abundante, desmayo, convulsión, dificultad respiratoria o dolor intenso?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Señal obstétrica grave"
+          },
+          "no": {
+            "siguiente": "a2"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Hay sangrado vaginal, salida de líquido, dolor persistente o contracciones regulares?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Síntomas obstétricos urgentes"
+          },
+          "no": {
+            "siguiente": "a3"
+          }
+        },
+        "a3": {
+          "pregunta": "¿Disminuyeron mucho los movimientos del bebé, hay cefalea intensa, visión borrosa o hinchazón repentina?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Señal de alarma en embarazo"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Consulta obstétrica"
+          }
+        }
+      }
+    },
+    "salud_mental": {
+      "nombre": "Crisis emocional o de salud mental",
+      "palabras_clave": [
+        "ansiedad",
+        "depresión",
+        "pánico",
+        "hacerme daño"
+      ],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Piensa hacerse daño o hacer daño a otra persona?",
+          "tipo": "booleano",
+          "si": {
+            "siguiente": "a2"
+          },
+          "no": {
+            "siguiente": "a4"
+          }
+        },
+        "a2": {
+          "pregunta": "¿Tiene un plan, acceso a medios o intención de hacerlo pronto?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "rojo",
+            "motivo": "Riesgo inmediato"
+          },
+          "no": {
+            "resultado": "naranja",
+            "motivo": "Ideación autolesiva"
+          }
+        },
+        "a4": {
+          "pregunta": "¿Está muy agitada, desorientada, percibe cosas que otros no o no puede cuidarse?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "naranja",
+            "motivo": "Crisis significativa"
+          },
+          "no": {
+            "resultado": "amarillo",
+            "motivo": "Malestar emocional"
+          }
+        }
+      }
+    },
+    "otro": {
+      "nombre": "Otro motivo",
+      "palabras_clave": [],
+      "nodo_inicial": "a1",
+      "nodos": {
+        "a1": {
+          "pregunta": "¿Los síntomas son intensos, empeoran rápido o impiden actividades básicas?",
+          "tipo": "booleano",
+          "si": {
+            "resultado": "amarillo",
+            "motivo": "Síntoma no clasificado significativo"
+          },
+          "no": {
+            "resultado": "humano",
+            "motivo": "Motivo no cubierto"
+          }
+        }
+      }
+    }
+  },
+  "reglas_globales": [
+    {
+      "id": "empeora",
+      "condicion": {
+        "campo": "empeoramiento",
+        "igual": true
+      },
+      "accion": {
+        "elevar_minimo_a": "amarillo"
+      }
+    },
+    {
+      "id": "no_sabe",
+      "condicion": {
+        "conteo_no_sabe_min": 2
+      },
+      "accion": {
+        "resultado": "humano"
+      }
+    },
+    {
+      "id": "multiples",
+      "condicion": {
+        "motivos_detectados_min": 2
+      },
+      "accion": {
+        "elevar_un_nivel": true
+      }
+    },
+    {
+      "id": "menor_1",
+      "condicion": {
+        "edad_menor_que": 1
+      },
+      "accion": {
+        "elevar_un_nivel": true
+      }
+    },
+    {
+      "id": "mayor_65",
+      "condicion": {
+        "edad_mayor_igual_que": 65
+      },
+      "accion": {
+        "elevar_un_nivel": true
+      }
+    }
+  ],
+  "salida_estandar": {
+    "campos": [
+      "session_id",
+      "motivo_consulta",
+      "nivel",
+      "nombre_nivel",
+      "motivo_clasificacion",
+      "mensaje",
+      "respuestas",
+      "requiere_revision_humana",
+      "disclaimer"
+    ],
+    "disclaimer": "Orientación preliminar; no constituye diagnóstico. Si empeora o preocupa, busca atención médica."
+  },
+  "pruebas_ejemplo": [
+    {
+      "entrada": {
+        "motivo": "dolor_pecho",
+        "respuestas": {
+          "a1": true,
+          "a2": true
+        }
+      },
+      "esperado": "rojo"
+    },
+    {
+      "entrada": {
+        "motivo": "vomitos_diarrea",
+        "respuestas": {
+          "a1": false,
+          "a2": true
+        }
+      },
+      "esperado": "naranja"
+    },
+    {
+      "entrada": {
+        "motivo": "dolor_cabeza",
+        "respuestas": {
+          "a1": false,
+          "a2": false,
+          "a3": false,
+          "a4": false,
+          "a5": true
+        }
+      },
+      "esperado": "amarillo"
+    }
+  ],
+  "flujo_inicial": {
+    "etapas": [
+      {
+        "id": "tipo_consulta",
+        "pregunta": "¿Tu consulta es administrativa o sobre síntomas?",
+        "tipo": "opcion",
+        "opciones": [
+          {
+            "id": "administrativa",
+            "texto": "Consulta administrativa"
+          },
+          {
+            "id": "sintomas",
+            "texto": "Consulta sobre síntomas"
+          },
+          {
+            "id": "fuera_alcance",
+            "texto": "Otro tema"
+          }
+        ]
+      },
+      {
+        "id": "consentimiento",
+        "aplica_si": {
+          "tipo_consulta": "sintomas"
+        },
+        "texto": "Este asistente brinda orientación preliminar, no realiza diagnósticos y no reemplaza la evaluación de un profesional de salud.",
+        "requiere_aceptacion": true
+      },
+      {
+        "id": "filtro_emergencia",
+        "aplica_si": {
+          "tipo_consulta": "sintomas"
+        },
+        "origen": "filtro_universal_emergencia"
+      },
+      {
+        "id": "seleccion_motivo",
+        "aplica_si": {
+          "sin_emergencia": true
+        },
+        "pregunta": "¿Cuál es el principal síntoma o problema de salud?",
+        "tipo": "texto_o_opcion",
+        "permitir_texto_libre": true,
+        "opciones": [
+          "dolor_pecho",
+          "dificultad_respiratoria",
+          "fiebre_adulto",
+          "fiebre_nino",
+          "dolor_abdominal",
+          "dolor_cabeza",
+          "debilidad_neurologica",
+          "traumatismo",
+          "sangrado",
+          "reaccion_alergica",
+          "vomitos_diarrea",
+          "embarazo",
+          "salud_mental",
+          "otro"
+        ]
+      },
+      {
+        "id": "contexto",
+        "aplica_si": {
+          "motivo_seleccionado": true
+        },
+        "origen": "preguntas_contexto"
+      },
+      {
+        "id": "arbol_especifico",
+        "aplica_si": {
+          "motivo_seleccionado": true
+        },
+        "origen": "motivos_consulta"
+      }
+    ]
+  }
+}
