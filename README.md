@@ -1,4 +1,4 @@
-# HospitalCheck — Triage y Orientación de Salud (Hackatón MINSA)
+# HospitalCheck — Triage y Orientación de Salud
 
 Prototipo de asistente virtual para orientación administrativa y de salud:
 clasifica consultas de texto libre y las enruta a un árbol de decisión clínico
