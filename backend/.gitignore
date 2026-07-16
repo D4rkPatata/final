@@ -1,0 +1,15 @@
+# Entorno virtual de Python
+.venv/
+
+# Cache de Python
+__pycache__/
+*.pyc
+
+# Configuracion local (nunca commitear secretos/URLs reales)
+.env
+
+# Indices Chroma persistidos — se regeneran con scripts/ingest_docs.py
+storage/
+
+# Log de auditoria clinica — se regenera vacio
+logs/*.log

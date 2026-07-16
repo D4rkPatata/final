@@ -1,0 +1,332 @@
+D:\Users\alulab14.INF\Downloads\HospitalCheck-backend\backend\data<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Prototipo de asistente virtual para orientación administrativa y de salud."
+    />
+    <title>Salud Cerca | Asistente virtual</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#messageInput">Ir al campo de consulta</a>
+
+    <main class="access-view" id="accessView">
+      <section class="access-hero" aria-labelledby="accessTitle">
+        <div class="access-hero__content">
+          <a class="brand brand--light" href="#" aria-label="HospitalCheck, inicio">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M9.2 3.5h5.6v5.7h5.7v5.6h-5.7v5.7H9.2v-5.7H3.5V9.2h5.7V3.5Z" />
+              </svg>
+            </span>
+            <span class="brand__text">
+              <strong>HospitalCheck</strong>
+              <small>Orientación virtual</small>
+            </span>
+          </a>
+
+          <div class="access-hero__message">
+            <p class="eyebrow eyebrow--light">TU SALUD, MÁS CERCA</p>
+            <h1 id="accessTitle">Orientación clara cuando la necesitas</h1>
+            <p>
+              Resuelve consultas sobre servicios de salud, recibe orientación general
+              sobre síntomas y revisa tu información clínica de demostración.
+            </p>
+          </div>
+
+          <ul class="access-benefits" aria-label="Funciones disponibles">
+            <li>
+              <span aria-hidden="true">✓</span>
+              Consultas disponibles en cualquier momento
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>
+              Respuestas sencillas y fáciles de comprender
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>
+              Acceso como paciente o como invitado
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="login-panel" aria-labelledby="loginTitle">
+        <div class="login-card">
+          <div class="login-card__heading">
+            <p class="eyebrow">ACCESO DE PACIENTES</p>
+            <h2 id="loginTitle">Bienvenido</h2>
+            <p>Ingresa tus datos para consultar tu información personalizada.</p>
+          </div>
+
+          <form class="login-form" id="loginForm" novalidate>
+            <div class="form-field">
+              <label for="dniInput">DNI</label>
+              <div class="input-control">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="5" width="16" height="14" rx="2" />
+                  <circle cx="9" cy="11" r="2" />
+                  <path d="M6.5 16c.7-1.5 4.3-1.5 5 0M14 10h3.5M14 14h3.5" />
+                </svg>
+                <input
+                  id="dniInput"
+                  name="dni"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="username"
+                  maxlength="8"
+                  placeholder="Ingresa tu DNI"
+                  aria-describedby="loginError"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="passwordInput">Contraseña</label>
+              <div class="input-control">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="5" y="10" width="14" height="10" rx="2" />
+                  <path d="M8 10V7.5a4 4 0 0 1 8 0V10M12 14v2.5" />
+                </svg>
+                <input
+                  id="passwordInput"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Ingresa tu contraseña"
+                  aria-describedby="loginError"
+                  required
+                />
+                <button class="password-toggle" id="passwordToggle" type="button">
+                  <span class="sr-only">Mostrar contraseña</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3.5 12s3-5 8.5-5 8.5 5 8.5 5-3 5-8.5 5-8.5-5-8.5-5Z" />
+                    <circle cx="12" cy="12" r="2.2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <p class="login-error" id="loginError" role="alert" hidden></p>
+            <button class="primary-button primary-button--login" type="submit">
+              Iniciar sesión
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+            </button>
+          </form>
+
+          <div class="login-divider"><span>o</span></div>
+          <button class="guest-button" id="guestButton" type="button">
+            Continuar como invitado
+          </button>
+          <p class="guest-note">
+            Como invitado podrás realizar consultas generales, pero no acceder al historial clínico.
+          </p>
+
+          <!-- Usuarios de prueba reales del backend, visibles solo para la demostración académica. -->
+          <details class="demo-credentials">
+            <summary>Ver usuarios de demostración</summary>
+            <div>
+              María Fernanda Torres Quispe (paciente)<br />
+              <code>72415893</code> / <code>DemoSalud1!</code><br /><br />
+              Karina Paredes Villanueva (apoderada de Diego, HC-002)<br />
+              <code>45678912</code> / <code>DemoSalud2!</code>
+            </div>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <div class="app-shell" id="appShell" hidden>
+      <header class="topbar" aria-label="Encabezado principal">
+        <a class="brand" href="#" aria-label="Salud Cerca, inicio">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M9.2 3.5h5.6v5.7h5.7v5.6h-5.7v5.7H9.2v-5.7H3.5V9.2h5.7V3.5Z" />
+            </svg>
+          </span>
+          <span class="brand__text">
+            <strong>HospitalCheck</strong>
+            <small>Orientación virtual</small>
+          </span>
+        </a>
+
+        <div class="topbar__actions">
+          <button class="secondary-button" id="resetButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5a7 7 0 1 0 6.4 4.2M19 4v5h-5" />
+            </svg>
+            <span>Nueva conversación</span>
+          </button>
+          <div class="user-area" id="userArea"></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="chat-card" aria-label="Chat con el asistente virtual">
+          <div
+            class="chat-history"
+            id="chatHistory"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
+            <div class="welcome" id="welcomePanel">
+              <div class="assistant-avatar assistant-avatar--large" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M8.8 4.5h6.4v4.3h4.3v6.4h-4.3v4.3H8.8v-4.3H4.5V8.8h4.3V4.5Z" />
+                </svg>
+              </div>
+              <p class="eyebrow">ASISTENTE VIRTUAL</p>
+              <h1 id="welcomeTitle">Hola, ¿cómo podemos orientarte?</h1>
+              <p class="welcome__description">
+                Puedes consultar sobre trámites y servicios de salud, o contarnos
+                qué síntomas presentas para recibir orientación general.
+              </p>
+
+              <div class="scope-note">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 10.5v5M12 7.6v.1" />
+                </svg>
+                <p>
+                  Este asistente no brinda diagnósticos ni reemplaza la evaluación
+                  de un profesional de salud.
+                </p>
+              </div>
+
+              <div class="suggestions" aria-labelledby="suggestionsTitle">
+                <h2 id="suggestionsTitle">Elige una opción o escribe tu consulta</h2>
+                <div class="suggestions__grid">
+                  <button
+                    class="suggestion-card suggestion-card--administrative"
+                    type="button"
+                    data-prompt="¿Qué requisitos necesito para afiliarme al SIS?"
+                  >
+                    <span class="suggestion-card__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M7 3.8h10v16.4H7zM9.8 8h4.4M9.8 11.5h4.4M9.8 15h2.6" />
+                      </svg>
+                    </span>
+                    <span class="suggestion-card__content">
+                      <strong>Trámites y preguntas frecuentes</strong>
+                      <small>“¿Qué requisitos necesito para afiliarme al SIS?”</small>
+                    </span>
+                    <svg class="suggestion-card__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m9 6 6 6-6 6" />
+                    </svg>
+                  </button>
+
+                  <button
+                    class="suggestion-card suggestion-card--symptoms"
+                    type="button"
+                    data-prompt="Tengo dolor de garganta y fiebre desde ayer, ¿qué debo hacer?"
+                  >
+                    <span class="suggestion-card__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 20s-7-4.2-7-10a4 4 0 0 1 7-2.7A4 4 0 0 1 19 10c0 5.8-7 10-7 10Z" />
+                        <path d="M8.2 12h2.2l1.2-2.3 1.4 4 1-1.7h2" />
+                      </svg>
+                    </span>
+                    <span class="suggestion-card__content">
+                      <strong>Orientación sobre síntomas</strong>
+                      <small>“Tengo dolor de garganta y fiebre desde ayer…”</small>
+                    </span>
+                    <svg class="suggestion-card__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m9 6 6 6-6 6" />
+                    </svg>
+                  </button>
+
+                  <button
+                    class="suggestion-card suggestion-card--history"
+                    id="historySuggestion"
+                    type="button"
+                    data-prompt="Muéstrame un resumen de mi historial clínico"
+                    hidden
+                  >
+                    <span class="suggestion-card__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M7 4h8l3 3v13H7zM15 4v4h3M10 12h5M10 15h5" />
+                        <path d="M11 8.5h2M12 7.5v2" />
+                      </svg>
+                    </span>
+                    <span class="suggestion-card__content">
+                      <strong>Consultar mi historial clínico</strong>
+                      <small>“Muéstrame un resumen de mi historial clínico”</small>
+                    </span>
+                    <svg class="suggestion-card__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m9 6 6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer-area">
+            <form class="composer" id="chatForm" novalidate>
+              <label class="sr-only" for="messageInput">Escribe tu consulta</label>
+              <textarea
+                id="messageInput"
+                name="message"
+                rows="1"
+                maxlength="600"
+                placeholder="Escribe aquí tu consulta…"
+                autocomplete="off"
+                aria-describedby="composerHint"
+                required
+              ></textarea>
+              <button class="send-button" id="sendButton" type="submit" disabled>
+                <span class="sr-only">Enviar consulta</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m4 12 15-7-4.7 14-2.8-5.5L4 12Z" />
+                  <path d="m11.5 13.5 4-4" />
+                </svg>
+              </button>
+            </form>
+            <p class="composer-hint" id="composerHint">
+              Presiona <kbd>Enter</kbd> para enviar · <kbd>Shift</kbd> + <kbd>Enter</kbd>
+              para una nueva línea
+            </p>
+          </div>
+        </section>
+
+        <aside class="safety-banner" aria-label="Aviso de seguridad">
+        </aside>
+      </main>
+
+      <footer class="page-footer">
+        <span>No almacena información personal</span>
+        <span aria-hidden="true">•</span>
+        <button type="button" id="privacyButton">Privacidad y uso responsable</button>
+      </footer>
+    </div>
+
+    <dialog class="privacy-dialog" id="privacyDialog" aria-labelledby="privacyTitle">
+      <div class="privacy-dialog__heading">
+        <div>
+          <p class="eyebrow">USO RESPONSABLE</p>
+          <h2 id="privacyTitle">Tu privacidad importa</h2>
+        </div>
+        <button class="icon-button" id="closePrivacyButton" type="button">
+          <span class="sr-only">Cerrar</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </div>
+      <p>
+        Esta versión es una demostración y procesa las consultas únicamente en tu
+        navegador. No escribas nombres, documentos de identidad ni otros datos personales.
+      </p>
+      <button class="primary-button" id="acceptPrivacyButton" type="button">Entendido</button>
+    </dialog>
+
+    <!-- MOCK: las fuentes mostradas en las respuestas se generan desde app.js. -->
+    <!-- TODO BACKEND: reemplazar los datos simulados por fuentes oficiales devueltas por FastAPI. -->
+    <script src="app.js"></script>
+  </body>
+</html>
